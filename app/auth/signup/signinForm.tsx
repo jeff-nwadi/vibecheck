@@ -1,11 +1,50 @@
 import { fonts } from "@/app/constant";
 import { Ionicons } from "@expo/vector-icons";
-import { Link } from "expo-router";
-import React from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Link, useRouter } from "expo-router";
+import React, { useState } from "react";
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { supabase } from "../../../supabase";
 import { colors, fontText } from "../../constant/theme";
 
-const signinForm = () => {
+const SigninForm = () => {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSignUp = async () => {
+    if (!email || !password || !username) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    setLoading(true);
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username,
+        },
+      },
+    });
+
+    setLoading(false);
+
+    if (error) {
+      Alert.alert("Error", error.message);
+    } else {
+      if (!session) {
+        Alert.alert("Success", "Check your email for the confirmation link!");
+      }
+      router.replace("/(tabs)"); // Redirect to home or wherever
+    }
+  };
+
   return (
     <ScrollView style={style.container}>
       <Link href="/screens/Onboarding" asChild>
@@ -20,8 +59,8 @@ const signinForm = () => {
       <View>
         <Text style={style.title}>Join the vibe</Text>
         <Text style={style.subTitle}>
-          Use your username and password to sign in, or keep it quick! with
-          Google
+          Use your email and password to sign up, or keep it quick! with
+          Google. Let&apos;s get this bread!
         </Text>
       </View>
 
@@ -30,22 +69,36 @@ const signinForm = () => {
           placeholder="Email"
           style={style.input}
           placeholderTextColor={colors.subText}
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
         />
         <TextInput
           placeholder="Username"
           style={style.input}
           placeholderTextColor={colors.subText}
+          value={username}
+          onChangeText={setUsername}
         />
         <TextInput
           placeholder="Password"
           style={style.input}
           secureTextEntry
           placeholderTextColor={colors.subText}
+          value={password}
+          onChangeText={setPassword}
         />
       </View>
-      <View style={style.buttonContainer}>
-        <Text style={style.buttonText}>Let&apos;s go!!!</Text>
-      </View>
+      <TouchableOpacity
+        style={[style.buttonContainer, loading && { opacity: 0.7 }]}
+        onPress={handleSignUp}
+        disabled={loading}
+      >
+        <Text style={style.buttonText}>
+          {loading ? "Creating account..." : "Let's go!!!"}
+        </Text>
+      </TouchableOpacity>
 
       <Text
         style={{
@@ -53,12 +106,18 @@ const signinForm = () => {
           marginTop: 15,
           fontFamily: fonts.regular,
           fontSize: fontText.regular,
-            color: colors.subText,
+          color: colors.subText,
         }}
       >
         Already have an account?{" "}
         <Link href="/auth/login" asChild>
-          <Text style={{ color: colors.primary, fontFamily: fonts.medium, fontSize: fontText.regular }}>
+          <Text
+            style={{
+              color: colors.primary,
+              fontFamily: fonts.medium,
+              fontSize: fontText.regular,
+            }}
+          >
             Login
           </Text>
         </Link>
@@ -71,20 +130,30 @@ const signinForm = () => {
       </View>
 
       <View style={style.buttonContainer2}>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10 }} >
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+          }}
+        >
           <Ionicons name="logo-google" size={20} color={colors.primary} />
           <Text>Continue with Google</Text>
         </View>
       </View>
 
-
-      <Text style={{color: colors.subText, fontSize: fontText.regular}}>By continuing, you agree to our <Link href="/terms/index" style={style.link}>
-        Terms of Service
-      </Link> and <Link href="/privacy/index" style={style.link}>
-        Privacy Policy
-      </Link>.
+      <Text style={{ color: colors.subText, fontSize: fontText.regular }}>
+        By continuing, you agree to our{" "}
+        <Link href="/terms" asChild>
+          <Text style={style.link}>Terms of Service</Text>
+        </Link>{" "}
+        and{" "}
+        <Link href="/privacy" asChild>
+          <Text style={style.link}>Privacy Policy</Text>
+        </Link>
+        .
       </Text>
-
     </ScrollView>
   );
 };
@@ -101,8 +170,8 @@ const style = StyleSheet.create({
     borderRadius: 100,
     borderColor: colors.border,
     borderWidth: 1,
-    width: 50,
-    height: 50,
+    width: 45,
+    height: 45,
     textAlign: "center",
     textAlignVertical: "center",
   },
@@ -171,13 +240,13 @@ const style = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  link : {
+  link: {
     color: colors.primary,
     fontFamily: fonts.medium,
     fontSize: fontText.regular,
     marginTop: 20,
     textAlign: "center",
-  }
+  },
 });
 
-export default signinForm;
+export default SigninForm;
