@@ -1,9 +1,12 @@
-import React from 'react'
+import React from "react";
+import { Text, View } from "react-native";
 
 const index = () => {
   return (
-    <div>index</div>
-  )
-}
+    <View>
+      <Text>index</Text>
+    </View>
+  );
+};
 
-export default index
+export default index;

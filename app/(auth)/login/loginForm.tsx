@@ -3,7 +3,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { supabase } from "../../../supabase";
+import { supabase } from "@/lib/supabae";
+
 import { colors, fontText } from "../../constant/theme";
 
 const LoginForm = () => {
@@ -20,8 +21,8 @@ const LoginForm = () => {
 
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: email,
+      password: password,
     });
 
     setLoading(false);
@@ -29,7 +30,7 @@ const LoginForm = () => {
     if (error) {
       Alert.alert("Error", error.message);
     } else {
-      router.replace("/(tabs)"); // Redirect to home
+      router.replace("/(tabs)/feed");
     }
   };
 
@@ -91,7 +92,7 @@ const LoginForm = () => {
         }}
       >
         Don&apos;t have an account?{" "}
-        <Link href="/auth/signup" asChild>
+        <Link href="/signup" asChild>
           <Text
             style={{
               color: colors.primary,

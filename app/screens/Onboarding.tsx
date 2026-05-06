@@ -32,7 +32,7 @@ const Onboarding = () => {
         />
       </View>
 
-      <Link href="/auth/signup" asChild>
+      <Link href="/signup" asChild>
         <Pressable style={style.btn}>
           <View style={{ flexDirection: "row", gap: 0 }}>
             <Ionicons
